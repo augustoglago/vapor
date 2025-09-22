@@ -1,3 +1,28 @@
+# 🎮 Vapor
+
+Um aplicativo para organizar sua vida gamer: crie listas de jogos, acompanhe suas conquistas e monte pastas personalizadas com seus interesses.  
+O objetivo do projeto é oferecer uma forma simples, moderna e intuitiva de gerenciar sua biblioteca e progresso em jogos.
+
+---
+
+## ✨ Funcionalidades
+
+- 📋 **Listas de jogos**: adicione, edite e categorize seus jogos favoritos.  
+- 🏆 **Marcar conquistas**: acompanhe seu progresso e celebre cada conquista desbloqueada.  
+- 📂 **Pastas de interesses**: organize listas temáticas (ex.: "RPGs", "Jogos de infância", "Zerados em 2025").  
+- 🔎 **Busca rápida**: encontre jogos facilmente.  
+- 🌐 **Interface intuitiva**: design simples e responsivo.  
+
+---
+
+## 🚀 Como rodar o projeto
+
+1. **Clone o repositório**
+   ```bash
+   git clone https://github.com/seu-usuario/gamevault.git
+   cd gamevault
+
+
 # Welcome to your Expo app 👋
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
