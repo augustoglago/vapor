@@ -15,14 +15,6 @@ O objetivo do projeto é oferecer uma forma simples, moderna e intuitiva de gere
 
 ---
 
-## 🚀 Como rodar o projeto
-
-1. **Clone o repositório**
-   ```bash
-   git clone https://github.com/seu-usuario/gamevault.git
-   cd gamevault
-
-
 # Welcome to your Expo app 👋
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
