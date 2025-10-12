@@ -2,7 +2,7 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import React from "react";
-import { Pressable, View } from "react-native";
+import { Image, Pressable, View } from "react-native";
 
 /* imports individuais (pacotes @gluestack-ui/*) */
 import { Box } from "@/components/ui/box";
@@ -61,9 +61,11 @@ export default function Login() {
                   borderColor: "rgba(59, 130, 246, 0.2)",
                 }}
               >
-                <Text size="2xl" style={{ color: "#3B82F6" }}>
-                  V
-                </Text>
+                <Image
+                  source={require('../assets/images/logo-1.png')}
+                  style={{ width: 40, height:40 }}
+                  resizeMode="contain"
+                />
               </Box>
               
               {/* Título */}
@@ -157,50 +159,6 @@ export default function Login() {
                 Entrar
               </ButtonText>
             </Button>
-
-            {/* Divider */}
-            <HStack style={{ alignItems: "center", marginVertical: 8 }}>
-              <Box style={{ flex: 1, height: 1, backgroundColor: "rgba(148, 163, 184, 0.2)" }} />
-              <Text size="xs" style={{ color: "#64748B", paddingHorizontal: 16 }}>
-                ou
-              </Text>
-              <Box style={{ flex: 1, height: 1, backgroundColor: "rgba(148, 163, 184, 0.2)" }} />
-            </HStack>
-
-            {/* Social Login Buttons */}
-            <VStack space="sm">
-              <Button
-                variant="outline"
-                size="md"
-                style={{
-                  borderRadius: 16,
-                  borderColor: "rgba(148, 163, 184, 0.2)",
-                  backgroundColor: "rgba(30, 41, 59, 0.3)",
-                  paddingVertical: 16,
-                }}
-                onPress={() => console.log("Login com Google")}
-              >
-                <ButtonText style={{ color: "#E2E8F0", fontSize: 14 }}>
-                  Continuar com Google
-                </ButtonText>
-              </Button>
-
-              <Button
-                variant="outline"
-                size="md"
-                style={{
-                  borderRadius: 16,
-                  borderColor: "rgba(148, 163, 184, 0.2)",
-                  backgroundColor: "rgba(30, 41, 59, 0.3)",
-                  paddingVertical: 16,
-                }}
-                onPress={() => console.log("Login com Apple")}
-              >
-                <ButtonText style={{ color: "#E2E8F0", fontSize: 14 }}>
-                  Continuar com Apple
-                </ButtonText>
-              </Button>
-            </VStack>
           </VStack>
         </Box>
 
