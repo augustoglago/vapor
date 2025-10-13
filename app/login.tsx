@@ -1,178 +1,93 @@
-// app/login.tsx
-import { LinearGradient } from "expo-linear-gradient";
-import { router } from "expo-router";
-import React from "react";
-import { Image, Pressable, View } from "react-native";
-
-/* imports individuais (pacotes @gluestack-ui/*) */
-import { Box } from "@/components/ui/box";
 import { Button, ButtonText } from "@/components/ui/button";
-import { HStack } from "@/components/ui/hstack";
 import { Input, InputField } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
-import { VStack } from "@/components/ui/vstack";
+import { LinearGradient } from "expo-linear-gradient";
+import { router } from "expo-router";
+import { Image, Pressable, View } from "react-native";
 
 export default function Login() {
   return (
     <LinearGradient
-      colors={['#0f172a', '#1e293b', '#334155']}
-      style={{ flex: 1 }}
+      colors={["#0f172a", "#1e293b", "#334155"]}
+      className="flex-1"
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
     >
-      <View
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-          paddingHorizontal: 24,
-        }}
-      >
-        {/* Card Container */}
-        <Box
-          style={{
-            width: "100%",
-            maxWidth: 380,
-            backgroundColor: "rgba(15, 23, 42, 0.8)",
-            borderRadius: 24,
-            padding: 32,
-            borderWidth: 1,
-            borderColor: "rgba(148, 163, 184, 0.1)",
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 20 },
-            shadowOpacity: 0.25,
-            shadowRadius: 25,
-            elevation: 20,
-          }}
-        >
-          <VStack space="xl">
-            {/* Header Section */}
-            <VStack space="md" style={{ alignItems: "center", marginBottom: 8 }}>
-              {/* Logo/Icon Placeholder */}
-              <Box
-                style={{
-                  width: 60,
-                  height: 60,
-                  backgroundColor: "rgba(59, 130, 246, 0.1)",
-                  borderRadius: 20,
-                  justifyContent: "center",
-                  alignItems: "center",
-                  borderWidth: 1,
-                  borderColor: "rgba(59, 130, 246, 0.2)",
-                }}
-              >
-                <Image
-                  source={require('../assets/images/logo-1.png')}
-                  style={{ width: 40, height:40 }}
-                  resizeMode="contain"
+      <View className="flex-1 justify-center items-center px-6">
+        <View className="w-full max-w-[380px] bg-[#0b1b2f] rounded-3xl p-8 border border-slate-700/10 shadow-2xl">
+          <View className="items-center mb-4">
+            <View className="w-14 h-14 bg-[#112a49] rounded-2xl justify-center items-center border border-blue-500/20 overflow-hidden">
+              <Image
+                source={require("../assets/images/logo-1.png")}
+                style={{ width: 40, height: 40 }}
+                resizeMode="contain"
+              />
+            </View>
+
+            <Text className="text-2xl text-slate-50 font-outfit mt-3">
+              Vapor
+            </Text>
+            <Text className="text-sm text-slate-400">Entre na sua conta</Text>
+          </View>
+
+          <View className="space-y-4">
+            {/* Email */}
+            <View>
+              <Text className="text-sm text-slate-200 font-semibold mb-2">
+                Email
+              </Text>
+              <Input className="rounded-2xl bg-slate-800/50 border border-slate-500/20">
+                <InputField
+                  placeholder="seu@email.com"
+                  placeholderTextColor="#64748B"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  className="text-slate-100 px-4 py-4"
                 />
-              </Box>
-              
-              {/* Título */}
-              <VStack space="xs" style={{ alignItems: "center" }}>
-                <Text size="3xl" bold style={{ color: "#F8FAFC" }}>
-                  Vapor
-                </Text>
-                <Text size="sm" style={{ color: "#94A3B8" }}>
-                  Entre na sua conta
-                </Text>
-              </VStack>
-            </VStack>
+              </Input>
+            </View>
 
-            {/* Form Fields */}
-            <VStack space="lg">
-              {/* Email */}
-              <Box>
-                <Text size="sm" bold style={{ color: "#E2E8F0", marginBottom: 8 }}>
-                  Email
+            {/* Senha */}
+            <View>
+              <View className="flex-row justify-between items-center mb-2">
+                <Text className="text-sm text-slate-200 font-semibold">
+                  Senha
                 </Text>
-                <Input
-                  variant="outline"
-                  size="md"
-                  style={{
-                    borderRadius: 16,
-                    backgroundColor: "rgba(30, 41, 59, 0.5)",
-                    borderColor: "rgba(148, 163, 184, 0.2)",
-                    borderWidth: 1,
-                  }}
-                >
-                  <InputField
-                    placeholder="seu@email.com"
-                    placeholderTextColor="#64748B"
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    style={{ color: "#F8FAFC", paddingHorizontal: 16, paddingVertical: 16 }}
-                  />
-                </Input>
-              </Box>
-
-              {/* Senha */}
-              <Box>
-                <HStack style={{ justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                  <Text size="sm" bold style={{ color: "#E2E8F0" }}>
-                    Senha
+                <Pressable onPress={() => console.log("Esqueci senha")}>
+                  <Text className="text-xs text-blue-500">
+                    Esqueci minha senha
                   </Text>
-                  <Pressable onPress={() => console.log("Esqueci senha")}>
-                    <Text size="xs" style={{ color: "#3B82F6" }}>
-                      Esqueci minha senha
-                    </Text>
-                  </Pressable>
-                </HStack>
-                <Input
-                  variant="outline"
-                  size="md"
-                  style={{
-                    borderRadius: 16,
-                    backgroundColor: "rgba(30, 41, 59, 0.5)",
-                    borderColor: "rgba(148, 163, 184, 0.2)",
-                    borderWidth: 1,
-                  }}
-                >
-                  <InputField
-                    placeholder="••••••••"
-                    placeholderTextColor="#64748B"
-                    secureTextEntry
-                    style={{ color: "#F8FAFC", paddingHorizontal: 16, paddingVertical: 16 }}
-                  />
-                </Input>
-              </Box>
-            </VStack>
+                </Pressable>
+              </View>
+              <Input className="rounded-2xl bg-slate-800/50 border border-slate-500/20">
+                <InputField
+                  placeholder="••••••••"
+                  placeholderTextColor="#64748B"
+                  secureTextEntry
+                  className="text-slate-100 px-4 py-4"
+                />
+              </Input>
+            </View>
+          </View>
 
-            {/* Login Button */}
-            <Button
-              size="md"
-              action="primary"
-              style={{
-                borderRadius: 16,
-                marginTop: 8,
-                backgroundColor: "#3B82F6",
-                paddingVertical: 16,
-                shadowColor: "#3B82F6",
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.3,
-                shadowRadius: 8,
-                elevation: 8,
-              }}
-              onPress={() => router.replace("/(tabs)")}
-            >
-              <ButtonText style={{ fontSize: 16, fontWeight: "600" }}>
-                Entrar
-              </ButtonText>
-            </Button>
-          </VStack>
-        </Box>
+          <Button
+            className="rounded-2xl mt-4 bg-blue-500 py-4 shadow-lg"
+            onPress={() => router.replace("/(tabs)")}
+          >
+            <ButtonText className="text-base font-semibold text-white">
+              Entrar
+            </ButtonText>
+          </Button>
+        </View>
 
-        {/* Footer */}
-        <HStack style={{ marginTop: 24, alignItems: "center" }}>
-          <Text size="sm" style={{ color: "#64748B" }}>
-            Não tem uma conta?{" "}
-          </Text>
+        <View className="flex-row mt-6 items-center">
+          <Text className="text-sm text-slate-400">Não tem uma conta? </Text>
           <Pressable onPress={() => console.log("Ir para cadastro")}>
-            <Text size="sm" style={{ color: "#3B82F6", fontWeight: "600" }}>
+            <Text className="text-sm text-blue-500 font-semibold">
               Criar conta
             </Text>
           </Pressable>
-        </HStack>
+        </View>
       </View>
     </LinearGradient>
   );
