@@ -13,7 +13,7 @@ export default function TabLayout() {
 
   return (
     <View style={{ flex: 1 }}>
-      <Header /> {/* 👈 seu header aqui */}
+      <Header />
       <Tabs
         screenOptions={{
           tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,

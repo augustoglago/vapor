@@ -1,10 +1,10 @@
-import axios from 'axios';
-import * as SecureStore from 'expo-secure-store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {Platform} from 'react-native';
-import {router} from 'expo-router';
+import axios from 'axios';
+import { router } from 'expo-router';
+import * as SecureStore from 'expo-secure-store';
+import { Platform } from 'react-native';
 
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000/api';
+const BASE_URL = "https://vapor-73xs.onrender.com/api";
 const TOKEN_KEY = 'user_jwt_token';
 
 const api = axios.create({
