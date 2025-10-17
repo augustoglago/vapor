@@ -1,22 +1,22 @@
-import { Button, ButtonText } from '@/components/ui/button';
-import { Text } from '@/components/ui/text';
 import React from 'react';
-import { View } from 'react-native';
-// import {deleteToken} from '@/services/api';
-import { LinearGradient } from "expo-linear-gradient";
+import {View} from 'react-native';
+import {Text} from '@/components/ui/text';
+import {Button, ButtonText} from '@/components/ui/button';
+import {router} from 'expo-router';
+import {deleteToken} from '@/services/api';
+import {LinearGradient} from "expo-linear-gradient";
 
 const handleLogout = async () => {
-    // try {
-    //     await deleteToken();
+    try {
+        await deleteToken();
 
-    //     console.log('Logout realizado. Token removido.');
+        console.log('Logout realizado. Token removido.');
 
-    //     router.replace('/login');
-    // } catch (e) {
-    //     console.error("Erro ao fazer logout:", e);
-    //     alert("Erro ao tentar sair. Tente novamente.");
-    // }
-    console.log("entrou")
+        router.replace('/login');
+    } catch (e) {
+        console.error("Erro ao fazer logout:", e);
+        alert("Erro ao tentar sair. Tente novamente.");
+    }
 };
 
 export default function GamesScreen() {
