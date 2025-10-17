@@ -16,7 +16,7 @@ export const Header = () => {
 
     return (
         <>
-            <View className="flex-row bg-slate-900 px-4 py-3 items-center justify-between border-b border-slate-700/20">
+            <View className="flex-row bg-vapor-primary px-4 py-3 items-center justify-between border-b border-slate-700/20">
                 {/* Avatar */}
                 <Pressable 
                     className="w-10 h-10 rounded-full overflow-hidden border-2 border-slate-600/30"
@@ -31,7 +31,7 @@ export const Header = () => {
 
                 {/* Barra de pesquisa */}
                 <View className="flex-1 mx-3 relative">
-                    <Input className="rounded-xl bg-slate-800/50 border border-slate-600/20">
+                    <Input className="rounded-xl bg-vapor-secondary border border-slate-600/20">
                         <View 
                             className="absolute left-3 z-10"
                             style={{ 
