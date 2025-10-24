@@ -3,7 +3,13 @@ import { Input, InputField } from "@/components/ui/input";
 import React, { useState } from 'react';
 import { Image, Modal, Platform, Pressable, Text, TouchableOpacity, View } from 'react-native';
 
-export const Header = () => {
+interface HeaderProps {
+    searchString: string;
+    onSearchChange: (text: string) => void;
+    onSearchFocus: () => void; 
+}
+
+export const Header = ({ searchString, onSearchChange, onSearchFocus }: HeaderProps) => { 
     const [showProfileOptions, setShowProfileOptions] = useState(false);
 
     const handleAvatarPress = () => {
@@ -45,6 +51,9 @@ export const Header = () => {
                             placeholder="Pesquisar jogos..."
                             placeholderTextColor="#64748B"
                             className="text-slate-100 pl-10 pr-4 py-3"
+                            onFocus={onSearchFocus}
+                            onChangeText={onSearchChange}
+                            value={searchString} 
                         />
                     </Input>
                 </View>
