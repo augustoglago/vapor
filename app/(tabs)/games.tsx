@@ -1,10 +1,10 @@
+import { Button, ButtonText } from '@/components/ui/button';
+import { Text } from '@/components/ui/text';
+import { deleteToken } from '@/services/api';
+import { LinearGradient } from "expo-linear-gradient";
+import { router } from 'expo-router';
 import React from 'react';
-import {View} from 'react-native';
-import {Text} from '@/components/ui/text';
-import {Button, ButtonText} from '@/components/ui/button';
-import {router} from 'expo-router';
-import {deleteToken} from '@/services/api';
-import {LinearGradient} from "expo-linear-gradient";
+import { View } from 'react-native';
 
 const handleLogout = async () => {
     try {
