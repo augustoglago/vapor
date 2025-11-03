@@ -8,10 +8,11 @@ O objetivo do projeto é oferecer uma forma simples, moderna e intuitiva de gere
 O **Vapor** é o aplicativo móvel desenvolvido em **React Native** que se conecta à **Vapor API**. Nosso objetivo é criar uma experiência de gerenciamento de listas personalizada para jogos da Steam, similar a plataformas como Pinterest ou MyAnimeList, mas focada no universo gamer.
 
 Os usuários podem:
-Os usuários podem:
-* Criar e gerenciar **listas personalizadas** (ex: "Jogados", "Lista de Desejos", "Favoritos", etc.).
-* Visualizar **informações detalhadas** dos jogos, integradas com a Steam.
-* Acompanhar **conquistas** e status de jogo.
+- 📋 **Listas de jogos**: adicione, edite e categorize seus jogos favoritos.
+- 🏆 **Marcar conquistas**: acompanhe seu progresso e celebre cada conquista desbloqueada.
+- 📂 **Pastas de interesses**: organize listas temáticas (ex.: "RPGs", "Jogos de infância", "Zerados em 2025").
+- 🔎 **Busca rápida**: encontre jogos facilmente.
+- 🌐 **Interface intuitiva**: design simples e responsivo.
 
 
 Este projeto faz parte de uma arquitetura maior, onde:
