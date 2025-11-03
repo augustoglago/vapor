@@ -124,7 +124,7 @@ export default function Login() {
               </View>
 
               <Button
-                className="rounded-xl mt-8 bg-blue-600 shadow-xl"
+                className="rounded-xl mt-8 bg-blue-700 shadow-xl"
                 onPress={handleLogin}
                 isDisabled={isLoading}
               >
@@ -138,7 +138,7 @@ export default function Login() {
               <Text className="text-sm text-slate-400">
                 Não tem uma conta?{" "}
               </Text>
-              <Pressable onPress={() => console.log("Ir para cadastro")}>
+              <Pressable onPress={() => router.push("/register")}>
                 <Text className="text-sm text-blue-500 font-semibold">
                   Criar conta
                 </Text>
