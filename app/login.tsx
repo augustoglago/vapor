@@ -1,6 +1,10 @@
 import { Button, ButtonText } from "@/components/ui/button";
 import { Input, InputField } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
+import {
+  askNotificationPermission,
+  scheduleDailyAt
+} from "@/lib/notify";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { useState } from "react";
@@ -32,6 +36,20 @@ export default function Login() {
       const { token } = response.data;
 
       await saveToken(token);
+
+      // garante permissão (uma vez)
+      const ok = await askNotificationPermission();
+
+      if (ok) {
+        // cancela agendamentos antigos para evitar duplicar
+        await Notifications.cancelAllScheduledNotificationsAsync();
+
+        // 1) lembrete DIÁRIO às 20:00
+        await scheduleDailyAt(20, 0, "Vapor", "Confira os destaques do dia!");
+
+        // 2) lembrete por INTERVALO de 6 horas
+        await scheduleEveryMinutes(360, 'Vai um joguinho?', 'Tem novidades te esperando :)');
+      }
 
       router.replace("/(tabs)/home");
     } catch (error: any) {
