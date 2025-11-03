@@ -74,7 +74,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, active = "home" }) =
   };
 
   return (
-    <View className="flex-row bg-vapor-primary border-t border-slate-700/20 justify-around py-3 px-2 items-center">
+    <View className="flex-row bg-vapor-primary border-t border-slate-700/20 justify-around py-1 px-2 items-center">
       <NavButton label="Início" icon={<Home />} route="home" />
       <NavButton label="Suas Listas" icon={<LibraryBig />} route="library" />
       <NavButton label="Criar" icon={<Plus />} route="create" />
