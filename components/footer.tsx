@@ -31,7 +31,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, active = "home" }) =
   const handlePress = (route: RouteKey) => {
     if (route === "home") {
       // Redireciona para a tela games
-      router.push("/(tabs)/games");
+      router.push("/(tabs)/home");
       return;
     }
     

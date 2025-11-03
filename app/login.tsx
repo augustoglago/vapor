@@ -33,7 +33,7 @@ export default function Login() {
 
       await saveToken(token);
 
-      router.replace("/(tabs)/games");
+      router.replace("/(tabs)/home");
     } catch (error: any) {
       const errorMessage =
         error.response?.data?.error || "Erro desconhecido. Tente novamente.";
