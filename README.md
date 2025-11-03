@@ -3,65 +3,93 @@
 Um aplicativo para organizar sua vida gamer: crie listas de jogos, acompanhe suas conquistas e monte pastas personalizadas com seus interesses.  
 O objetivo do projeto é oferecer uma forma simples, moderna e intuitiva de gerenciar sua biblioteca e progresso em jogos.
 
+## 📋 Sobre o Projeto
+
+O **Vapor** é o aplicativo móvel desenvolvido em **React Native** que se conecta à **Vapor API**. Nosso objetivo é criar uma experiência de gerenciamento de listas personalizada para jogos da Steam, similar a plataformas como Pinterest ou MyAnimeList, mas focada no universo gamer.
+
+Os usuários podem:
+- 📋 **Listas de jogos**: adicione, edite e categorize seus jogos favoritos.
+- 🏆 **Marcar conquistas**: acompanhe seu progresso e celebre cada conquista desbloqueada.
+- 📂 **Pastas de interesses**: organize listas temáticas (ex.: "RPGs", "Jogos de infância", "Zerados em 2025").
+- 🔎 **Busca rápida**: encontre jogos facilmente.
+- 🌐 **Interface intuitiva**: design simples e responsivo.
+
+
+Este projeto faz parte de uma arquitetura maior, onde:
+* **Frontend**: [Vapor](https://github.com/augustoglago/vapor) `React Native`;
+* **Backend**: [Vapor API](https://github.com/lucas-0331/project) `NodeJS`.
+
 ---
 
-## ✨ Funcionalidades
+## 🏗️ Infraestrutura
 
-- 📋 **Listas de jogos**: adicione, edite e categorize seus jogos favoritos.  
-- 🏆 **Marcar conquistas**: acompanhe seu progresso e celebre cada conquista desbloqueada.  
-- 📂 **Pastas de interesses**: organize listas temáticas (ex.: "RPGs", "Jogos de infância", "Zerados em 2025").  
-- 🔎 **Busca rápida**: encontre jogos facilmente.  
-- 🌐 **Interface intuitiva**: design simples e responsivo.  
+- **Modelagem do Banco**: [drawDB](https://www.drawdb.app/)
+    - [https://www.drawdb.app/editor?shareId=2c02833a1771f681013881c8d7be846d](https://www.drawdb.app/editor?shareId=2c02833a1771f681013881c8d7be846d)
+- **Hospedagem da API**: [Render](https://render.com/)
+    - [https://vapor-73xs.onrender.com/](https://vapor-73xs.onrender.com/)
+- **Banco de Dados**: [Aiven](https://aiven.io/) 
+    - PostgreSQL
 
 ---
 
-# Welcome to your Expo app 👋
+## 🚀 Tecnologias Utilizadas
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A stack deste projeto combina **React Native** com **Expo** para um desenvolvimento rápido e eficiente, focando em performance e uma experiência de usuário rica.
 
-## Get started
+### 📱 Core & Ambiente
+* **React Native** `react`, `react-native`: Framework principal para construção da interface móvel.
+* **Expo** `expo`, `expo-router`: Gerencia o ciclo de vida do projeto, roteamento via `expo-router` e acesso a APIs nativas.
+* **TypeScript** `typescript`: Garante tipagem e maior robustez ao código.
 
-1. Install dependencies
+### 🎨 Interface & Estilização
+* **NativeWind** `nativewind`, `tailwindcss`: Permite o uso da sintaxe **Tailwind CSS** para estilização, facilitando o design responsivo.
+* **Gluestack UI** `@gluestack-ui/core`: Um sistema de design para React Native que oferece componentes acessíveis e customizáveis.
+* **Animações**: `@legendapp/motion` e `react-native-reanimated` para transições fluidas e gestos.
 
-   ```bash
-   npm install
-   ```
+### 🌐 Conectividade & Dados
+* **Axios** `axios`: Cliente HTTP para comunicação com o backend Vapor API.
+* **Armazenamento Local**: `@react-native-async-storage/async-storage` e **`expo-secure-store`** para tokens de autenticação.
 
-2. Start the app
+---
 
-   ```bash
-   npx expo start
-   ```
+## 📦 Instalação e Execução
 
-In the output, you'll find options to open the app in a
+### Pré-requisitos
+* Node.js ^18;
+* Expo;
+* Emulador Android/iOS ou um dispositivo físico.
+* O backend **Vapor API** deve estar em execução localmente ou em produção.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### Instalação Local
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
+1.  Clone o repositório
 ```bash
-npm run reset-project
+git clone https://github.com/augustoglago/vapor.git
+cd vapor
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+2. Instale as dependências
+```bash
+npm install
+# ou yarn install
+```
 
-## Learn more
+3. Execute o aplicativo
+```bash
+npx expo start
+```
+---
 
-To learn more about developing your project with Expo, look at the following resources:
+## 👥 Equipe de Desenvolvimento
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+**Integrantes:**
+- [Augusto Lago](https://github.com/augustoglago);
+- [Erik Abdala](https://github.com/ErikAbdala);
+- [Lucas Costa](https://github.com/lucas-0331);
+- [Pedro Elias](https://github.com/pedrelias).
 
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+**IFSULDEMINAS - Campus Muzambinho**  
+**Docente:** Hudson de Jesus Ferreira Júnior  
+**Disciplina:** Tópicos Especiais II  
+**Curso:** Ciência da Computação  
+**Turma:** COMP8 (Noturno)
