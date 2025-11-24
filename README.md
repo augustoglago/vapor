@@ -45,6 +45,7 @@ A stack deste projeto combina **React Native** com **Expo** para um desenvolvime
 * **NativeWind** `nativewind`, `tailwindcss`: Permite o uso da sintaxe **Tailwind CSS** para estilização, facilitando o design responsivo.
 * **Gluestack UI** `@gluestack-ui/core`: Um sistema de design para React Native que oferece componentes acessíveis e customizáveis.
 * **Animações**: `@legendapp/motion` e `react-native-reanimated` para transições fluidas e gestos.
+* **Color Picker** `@reanimated-color-picker` para campo de escolha de cor.
 
 ### 🌐 Conectividade & Dados
 * **Axios** `axios`: Cliente HTTP para comunicação com o backend Vapor API.
