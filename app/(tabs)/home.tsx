@@ -13,8 +13,6 @@ import {
   Text,
   View,
 } from "react-native";
-// IMPORTANTE: Importe o componente GameDetails
-import GameDetails from "./gamedetails";
 
 function SectionTitle({
   title,
@@ -134,25 +132,7 @@ export default function HomeScreen() {
   const [recent, setRecent] = useState<Game[]>([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  
-  // NOVO ESTADO: Gerencia a visibilidade do Drawer e o jogo que deve ser exibido
-  const [selectedGame, setSelectedGame] = useState<Game | null>(null);
-  const [isDrawerVisible, setDrawerVisible] = useState(false);
 
-  // NOVO MÉTODO: Fecha o drawer
-  const closeGameDetails = () => {
-    setDrawerVisible(false);
-    setSelectedGame(null); 
-  };
-
-  // NOVO MÉTODO: Abre o drawer e define o jogo
-  const openGameDetails = useCallback((game: Game) => {
-    // 1. Define o jogo imediatamente
-    setSelectedGame(game);
-    // 2. Abre o drawer
-    setDrawerVisible(true);
-  }, []);
-  
   const fetchHomeData = useCallback(async (isRefresh = false) => {
     try {
       if (isRefresh) setRefreshing(true);
@@ -273,7 +253,7 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* Destaques - ABRE O DRAWER */}
+        {/* Destaques */}
         <SectionTitle
           title="Destaques"
           actionLabel="Ver todos"
@@ -286,7 +266,7 @@ export default function HomeScreen() {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 6 }}
           renderItem={({ item }) => (
-            <GameThumb game={item} onPress={() => openGameDetails(item)} /> 
+            <GameThumb game={item} onPress={() => router.push("/gamelist")} />
           )}
           ListEmptyComponent={
             <Text className="text-slate-400 px-4">
@@ -296,7 +276,7 @@ export default function HomeScreen() {
           scrollEnabled
         />
 
-        {/* Recentes - ABRE O DRAWER */}
+        {/* Recentes */}
         <SectionTitle
           title="Recentes"
           actionLabel="Ver todos"
@@ -309,7 +289,7 @@ export default function HomeScreen() {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 6 }}
           renderItem={({ item }) => (
-            <GameThumb game={item} onPress={() => openGameDetails(item)} />
+            <GameThumb game={item} onPress={() => router.push("/gamelist")} />
           )}
           ListEmptyComponent={
             <Text className="text-slate-400 px-4">
@@ -319,13 +299,6 @@ export default function HomeScreen() {
           scrollEnabled
         />
       </ScrollView>
-
-      {/* RENDERIZA O GameDetails */}
-      <GameDetails 
-        visible={isDrawerVisible} 
-        onClose={closeGameDetails} 
-        game={selectedGame}
-      />
     </View>
   );
 }
