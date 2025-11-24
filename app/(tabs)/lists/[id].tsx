@@ -5,18 +5,18 @@ import { Image as ExpoImage } from "expo-image";
 import { router, useLocalSearchParams } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
 import React, {
-    useCallback,
-    useEffect,
-    useMemo,
-    useRef,
-    useState,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
 } from "react";
 import {
-    ActivityIndicator,
-    FlatList,
-    Pressable,
-    Text,
-    View,
+  ActivityIndicator,
+  FlatList,
+  Pressable,
+  Text,
+  View,
 } from "react-native";
 
 // helpers de cor
@@ -117,8 +117,9 @@ export default function ListDetailScreen() {
   );
 
   useEffect(() => {
+    setGames([]);
     fetchGames(true);
-  }, [fetchGames]);
+  }, [listId, fetchGames]);
 
   const loadMore = () => {
     if (cursor == null || loading || loadingRef.current) return;
