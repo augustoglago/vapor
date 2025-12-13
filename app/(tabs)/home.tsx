@@ -1,6 +1,5 @@
 // app/(tabs)/home.tsx
-import { getGames } from "@/services/games";
-import { Game } from "@/types";
+
 import { Image as ExpoImage } from "expo-image";
 import { router } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
@@ -13,6 +12,14 @@ import {
   Text,
   View,
 } from "react-native";
+
+import { getGames } from "@/services/games";
+import { Game } from "@/types";
+
+// Importação do componente de Detalhes criado acima
+import GameDetails from "./gamedetails";
+
+// --- Componentes Auxiliares ---
 
 function SectionTitle({
   title,
@@ -40,24 +47,7 @@ function SectionTitle({
   );
 }
 
-function Chip({ label, onPress }: { label: string; onPress: () => void }) {
-  return (
-    <Pressable
-      onPress={onPress}
-      className="mr-2 px-3 py-2 rounded-full bg-slate-700/40 border border-slate-600/40"
-    >
-      <Text className="text-slate-200 text-xs font-medium">{label}</Text>
-    </Pressable>
-  );
-}
-
-function CategoryPill({
-  name,
-  onPress,
-}: {
-  name: string;
-  onPress: () => void;
-}) {
+function CategoryPill({ name, onPress }: { name: string; onPress: () => void }) {
   return (
     <Pressable
       onPress={onPress}
@@ -127,11 +117,29 @@ function GameThumb({ game, onPress }: { game: Game; onPress?: () => void }) {
   );
 }
 
+// --- Componente Principal ---
+
 export default function HomeScreen() {
   const [featured, setFeatured] = useState<Game[]>([]);
   const [recent, setRecent] = useState<Game[]>([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+
+  // --- Lógica do GameDetails (Modal) ---
+  const [selectedGame, setSelectedGame] = useState<Game | null>(null);
+  const [isDrawerVisible, setDrawerVisible] = useState(false);
+
+  const openGameDetails = useCallback((game: Game) => {
+    setSelectedGame(game);
+    setDrawerVisible(true);
+  }, []);
+
+  const closeGameDetails = useCallback(() => {
+    setDrawerVisible(false);
+    // Pequeno delay para limpar o jogo apenas após a animação de fechar (opcional)
+    setTimeout(() => setSelectedGame(null), 300);
+  }, []);
+  // -------------------------------------
 
   const fetchHomeData = useCallback(async (isRefresh = false) => {
     try {
@@ -159,15 +167,17 @@ export default function HomeScreen() {
 
   if (loading) {
     return (
-      <View className="flex-1 bg-vapor-primary items-center justify-center">
+      <View className="flex-1 bg-slate-900 items-center justify-center">
         <ActivityIndicator size="large" color="#e2e8f0" />
-        <Text className="text-slate-400 mt-3">Carregando…</Text>
+        <Text className="text-slate-400 mt-3">Carregando...</Text>
       </View>
     );
   }
 
   return (
-    <View className="flex-1 bg-vapor-primary">
+    <View className="flex-1 bg-slate-900"> 
+      {/* Nota: Ajustei bg-vapor-primary para bg-slate-900 para garantir consistência se a classe customizada não existir */}
+      
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 16 }}
@@ -253,7 +263,7 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* Destaques */}
+        {/* Destaques - Agora abre o Modal */}
         <SectionTitle
           title="Destaques"
           actionLabel="Ver todos"
@@ -266,7 +276,10 @@ export default function HomeScreen() {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 6 }}
           renderItem={({ item }) => (
-            <GameThumb game={item} onPress={() => router.push("/gamelist")} />
+            <GameThumb 
+                game={item} 
+                onPress={() => openGameDetails(item)} 
+            />
           )}
           ListEmptyComponent={
             <Text className="text-slate-400 px-4">
@@ -276,7 +289,7 @@ export default function HomeScreen() {
           scrollEnabled
         />
 
-        {/* Recentes */}
+        {/* Recentes - Agora abre o Modal */}
         <SectionTitle
           title="Recentes"
           actionLabel="Ver todos"
@@ -289,7 +302,10 @@ export default function HomeScreen() {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 6 }}
           renderItem={({ item }) => (
-            <GameThumb game={item} onPress={() => router.push("/gamelist")} />
+            <GameThumb 
+                game={item} 
+                onPress={() => openGameDetails(item)} 
+            />
           )}
           ListEmptyComponent={
             <Text className="text-slate-400 px-4">
@@ -299,6 +315,13 @@ export default function HomeScreen() {
           scrollEnabled
         />
       </ScrollView>
+
+      {/* Componente Modal Renderizado aqui */}
+      <GameDetails
+        visible={isDrawerVisible}
+        onClose={closeGameDetails}
+        game={selectedGame}
+      />
     </View>
   );
 }
