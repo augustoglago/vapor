@@ -1,17 +1,57 @@
-// app/gamelist.tsx
+// app/(tabs)/gamelist.tsx  (ou onde está seu GameListScreen)
+
+import { AddToListModal } from "@/components/add-to-list-modal";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { Input, InputField } from "@/components/ui/input";
 import { getGames } from "@/services/games";
 import { Game } from "@/types";
 import { Image } from "expo-image";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { ActivityIndicator, FlatList, Platform, RefreshControl, Text, View } from "react-native";
+import {
+    ActivityIndicator,
+    FlatList,
+    Platform,
+    Pressable,
+    RefreshControl,
+    Text,
+    View,
+} from "react-native";
 
-const GameItem = ({ game }: { game: Game }) => {
+const GameItem = ({ game, onPress }: { game: Game; onPress?: () => void }) => {
+  const CONTAINER_ASPECT_RATIO = 0.69;
+
   return (
-    <View className="m-1 rounded-xl overflow-hidden shadow-lg border border-slate-700/30" style={{ width: "31%", aspectRatio: 1 / 1.3 }}>
-      <Image source={{ uri: game.capsuleImageUrl }} contentFit="cover" className="w-full h-full" />
-    </View>
+    <Pressable
+      onPress={onPress}
+      className="m-1 rounded-xl overflow-hidden shadow-lg border border-slate-700/30"
+      style={{ width: "31%", aspectRatio: CONTAINER_ASPECT_RATIO }}
+    >
+      <Image
+        source={{ uri: game.capsuleImageUrl }}
+        contentFit="cover"
+        className="w-full h-full absolute inset-0"
+        blurRadius={40}
+        style={{ tintColor: "rgba(0,0,0,0.5)" }}
+      />
+
+      <View className="w-full p-1 justify-center items-center">
+        <Image
+          source={{ uri: game.headerImageUrl }}
+          contentFit="contain"
+          className="w-full rounded-sm"
+          style={{ aspectRatio: 1, height: undefined }}
+        />
+      </View>
+
+      <View className="flex-1 justify-center items-center p-2">
+        <Text
+          className="text-white text-xs text-center font-semibold"
+          numberOfLines={2}
+        >
+          {game.name}
+        </Text>
+      </View>
+    </Pressable>
   );
 };
 
@@ -20,44 +60,54 @@ export default function GameListScreen() {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [searchString, setSearchString] = useState("");
+  const [selectedGame, setSelectedGame] = useState<Game | null>(null); // << novo: game escolhido para adicionar
 
   const nextCursorRef = useRef<number | undefined>(undefined);
   const searchStringRef = useRef("");
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isLoadingRef = useRef(false);
 
-  const fetchGamesData = useCallback(async (isInitialLoad = false, isRefresh = false, searchParam?: string) => {
-    const currentSearch = searchParam !== undefined ? searchParam : searchStringRef.current;
-    const cursor = isInitialLoad || isRefresh || currentSearch ? undefined : nextCursorRef.current;
+  const fetchGamesData = useCallback(
+    async (isInitialLoad = false, isRefresh = false, searchParam?: string) => {
+      const currentSearch =
+        searchParam !== undefined ? searchParam : searchStringRef.current;
+      const cursor =
+        isInitialLoad || isRefresh || currentSearch
+          ? undefined
+          : nextCursorRef.current;
 
-    if (!cursor && !isInitialLoad && !isRefresh && !currentSearch) return;
-    if (isLoadingRef.current) return;
+      if (!cursor && !isInitialLoad && !isRefresh && !currentSearch) return;
+      if (isLoadingRef.current) return;
 
-    isLoadingRef.current = true;
+      isLoadingRef.current = true;
 
-    if (isRefresh) setRefreshing(true);
-    else setLoading(true);
+      if (isRefresh) setRefreshing(true);
+      else setLoading(true);
 
-    try {
-      const result = await getGames({ cursor, search: currentSearch || undefined });
+      try {
+        const result = await getGames({
+          cursor,
+          search: currentSearch || undefined,
+        });
 
-      setGames((prev) => {
-        if (isInitialLoad || isRefresh || currentSearch) return result.data;
-        return [...prev, ...result.data];
-      });
+        setGames((prev) => {
+          if (isInitialLoad || isRefresh || currentSearch) return result.data;
+          return [...prev, ...result.data];
+        });
 
-      nextCursorRef.current = result.cursor;
-    } catch (e) {
-      console.error("Falha na requisição de jogos:", e);
-      if (isInitialLoad || isRefresh || currentSearch) setGames([]);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-      isLoadingRef.current = false;
-    }
-  }, []);
+        nextCursorRef.current = result.cursor;
+      } catch (e) {
+        console.error("Falha na requisição de jogos:", e);
+        if (isInitialLoad || isRefresh || currentSearch) setGames([]);
+      } finally {
+        setLoading(false);
+        setRefreshing(false);
+        isLoadingRef.current = false;
+      }
+    },
+    []
+  );
 
-  // Inicialização
   useEffect(() => {
     fetchGamesData(true);
     return () => {
@@ -65,7 +115,6 @@ export default function GameListScreen() {
     };
   }, [fetchGamesData]);
 
-  // Busca com debounce
   const handleSearchChange = useCallback(
     (text: string) => {
       setSearchString(text);
@@ -81,11 +130,19 @@ export default function GameListScreen() {
   );
 
   const handleLoadMore = () => {
-    if (searchStringRef.current || nextCursorRef.current === undefined || loading || refreshing || isLoadingRef.current) return;
+    if (
+      searchStringRef.current ||
+      nextCursorRef.current === undefined ||
+      loading ||
+      refreshing ||
+      isLoadingRef.current
+    )
+      return;
     fetchGamesData(false);
   };
 
   const renderFooter = () => {
+    if (!loading && nextCursorRef.current === undefined) return null;
     if (!loading) return null;
     return (
       <View className="py-4 justify-center items-center">
@@ -120,23 +177,51 @@ export default function GameListScreen() {
       <FlatList
         data={games}
         keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => <GameItem game={item} />}
+        renderItem={({ item }) => (
+          <GameItem
+            game={item}
+            onPress={() => setSelectedGame(item)} // << abre modal
+          />
+        )}
         numColumns={3}
-        columnWrapperStyle={{ justifyContent: "space-between", marginHorizontal: 8, marginVertical: 4 }}
+        columnWrapperStyle={{
+          justifyContent: "flex-start",
+          marginHorizontal: 8,
+          marginVertical: 4,
+        }}
         className="pt-2"
         onEndReached={handleLoadMore}
         onEndReachedThreshold={0.5}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => fetchGamesData(true, true)} tintColor="#e2e8f0" />}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={() => fetchGamesData(true, true)}
+            tintColor="#e2e8f0"
+          />
+        }
         ListFooterComponent={renderFooter}
         ListEmptyComponent={() => {
           if (loading || refreshing) return null;
           return (
             <View className="flex-1 justify-center items-center p-8">
               <Text className="text-slate-400 text-lg text-center">
-                {searchStringRef.current ? "Nenhum jogo encontrado para a sua busca." : "Nenhum jogo disponível no momento."}
+                {searchStringRef.current && games.length === 0
+                  ? "Nenhum jogo encontrado para a sua busca."
+                  : "Nenhum jogo disponível no momento."}
               </Text>
             </View>
           );
+        }}
+      />
+
+      {/* Modal de adicionar à lista */}
+      <AddToListModal
+        visible={!!selectedGame}
+        game={selectedGame}
+        onClose={() => setSelectedGame(null)}
+        onDone={() => {
+          setSelectedGame(null);
+          // opcional: qualquer atualização de estado
         }}
       />
     </View>
