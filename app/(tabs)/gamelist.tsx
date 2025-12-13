@@ -1,6 +1,5 @@
-// app/(tabs)/gamelist.tsx  (ou onde está seu GameListScreen)
+// app/(tabs)/gamelist.tsx
 
-import { AddToListModal } from "@/components/add-to-list-modal";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { Input, InputField } from "@/components/ui/input";
 import { getGames } from "@/services/games";
@@ -8,14 +7,15 @@ import { Game } from "@/types";
 import { Image } from "expo-image";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
-    ActivityIndicator,
-    FlatList,
-    Platform,
-    Pressable,
-    RefreshControl,
-    Text,
-    View,
+  ActivityIndicator,
+  FlatList,
+  Platform,
+  Pressable,
+  RefreshControl,
+  Text,
+  View,
 } from "react-native";
+import GameDetails from "./gamedetails";
 
 const GameItem = ({ game, onPress }: { game: Game; onPress?: () => void }) => {
   const CONTAINER_ASPECT_RATIO = 0.69;
@@ -60,7 +60,22 @@ export default function GameListScreen() {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [searchString, setSearchString] = useState("");
-  const [selectedGame, setSelectedGame] = useState<Game | null>(null); // << novo: game escolhido para adicionar
+  
+  // --- Lógica do Modal ---
+  const [selectedGame, setSelectedGame] = useState<Game | null>(null);
+  const [isDrawerVisible, setDrawerVisible] = useState(false);
+
+  const openGameDetails = (game: Game) => {
+    setSelectedGame(game);
+    setDrawerVisible(true);
+  };
+
+  const closeGameDetails = () => {
+    setDrawerVisible(false);
+    // Pequeno delay para limpar a seleção apenas após a animação de fechar
+    setTimeout(() => setSelectedGame(null), 300);
+  };
+  // ----------------------
 
   const nextCursorRef = useRef<number | undefined>(undefined);
   const searchStringRef = useRef("");
@@ -152,7 +167,8 @@ export default function GameListScreen() {
   };
 
   return (
-    <View className="flex-1 bg-vapor-primary">
+    <View className="flex-1 bg-vapor-primary"> 
+      {/* Nota: Garanta que bg-vapor-primary existe no seu tailwind.config ou use bg-slate-900 */}
       <View className="px-4 pt-3 pb-1 bg-vapor-primary border-slate-700/20">
         <Input className="rounded-xl bg-vapor-secondary border border-slate-600/20">
           <View
@@ -180,7 +196,7 @@ export default function GameListScreen() {
         renderItem={({ item }) => (
           <GameItem
             game={item}
-            onPress={() => setSelectedGame(item)} // << abre modal
+            onPress={() => openGameDetails(item)} // Corrigido para chamar a função correta
           />
         )}
         numColumns={3}
@@ -215,14 +231,10 @@ export default function GameListScreen() {
       />
 
       {/* Modal de adicionar à lista */}
-      <AddToListModal
-        visible={!!selectedGame}
+      <GameDetails
+        visible={isDrawerVisible}
+        onClose={closeGameDetails}
         game={selectedGame}
-        onClose={() => setSelectedGame(null)}
-        onDone={() => {
-          setSelectedGame(null);
-          // opcional: qualquer atualização de estado
-        }}
       />
     </View>
   );
