@@ -1,25 +1,30 @@
 // app/(tabs)/lists/[id].tsx
+
 import { getListGames } from "@/services/lists";
 import { Game } from "@/types";
 import { Image as ExpoImage } from "expo-image";
 import { router, useLocalSearchParams } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
 import React, {
-    useCallback,
-    useEffect,
-    useMemo,
-    useRef,
-    useState,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
 } from "react";
 import {
-    ActivityIndicator,
-    FlatList,
-    Pressable,
-    Text,
-    View,
+  ActivityIndicator,
+  FlatList,
+  Pressable,
+  Text,
+  View,
 } from "react-native";
 
-// helpers de cor
+// Importação do componente de Detalhes
+// Certifique-se que o caminho "../gamedetails" está correto para o seu arquivo
+import GameDetails from "../gamedetails";
+
+// --- Helpers de cor ---
 function hexToRgb(hex?: string) {
   if (!hex) return { r: 71, g: 85, b: 105 };
   let h = (hex || "").replace("#", "");
@@ -43,9 +48,11 @@ function mixWithSlate(hex?: string, factor = 0.25) {
   return `rgb(${m(r, slate.r)}, ${m(g, slate.g)}, ${m(b, slate.b)})`;
 }
 
-function GameCard({ game }: { game: Game }) {
+// --- Componente GameCard ---
+function GameCard({ game, onPress }: { game: Game; onPress: () => void }) {
   return (
-    <View
+    <Pressable
+      onPress={onPress}
       className="m-1 rounded-xl overflow-hidden border border-slate-700/30"
       style={{ width: "31%", aspectRatio: 0.69 }}
     >
@@ -72,10 +79,11 @@ function GameCard({ game }: { game: Game }) {
           {game.name}
         </Text>
       </View>
-    </View>
+    </Pressable>
   );
 }
 
+// --- TELA PRINCIPAL ---
 export default function ListDetailScreen() {
   const { id, name, icon, color } = useLocalSearchParams<{
     id: string;
@@ -83,7 +91,9 @@ export default function ListDetailScreen() {
     icon?: string;
     color?: string;
   }>();
-  const listId = Number(id);
+  
+  // Converte o ID da URL para número de forma segura
+  const listId = id ? Number(id) : 0;
 
   const headerBg = useMemo(
     () => mixWithSlate(color ?? "#475569", 0.28),
@@ -97,17 +107,41 @@ export default function ListDetailScreen() {
   const [games, setGames] = useState<Game[]>([]);
   const [cursor, setCursor] = useState<number | null | undefined>(undefined);
   const [loading, setLoading] = useState(true);
-  const loadingRef = useRef(false); // evita dupla chamada no StrictMode
+  const loadingRef = useRef(false);
+
+  // --- Estados do Modal de Detalhes ---
+  const [selectedGame, setSelectedGame] = useState<Game | null>(null);
+  const [detailsVisible, setDetailsVisible] = useState(false);
+
+  const openGameDetails = (game: Game) => {
+    setSelectedGame(game);
+    setDetailsVisible(true);
+  };
+
+  const closeGameDetails = () => {
+    setDetailsVisible(false);
+    setTimeout(() => setSelectedGame(null), 300);
+  };
+
+  // Callback chamado quando um jogo é removido com sucesso
+  const handleGameRemoved = () => {
+    // Recarrega a lista do zero para sumir com o jogo removido
+    fetchGames(true);
+  };
 
   const fetchGames = useCallback(
     async (reset = true) => {
       if (loadingRef.current) return;
       loadingRef.current = true;
       try {
-        setLoading(true);
+        if (reset) setLoading(true); // Mostra loading se for reset
+        
         const res = await getListGames(listId, reset ? {} : { cursor });
+        
         setGames((prev) => (reset ? res.data : [...prev, ...res.data]));
         setCursor(res.cursor ?? null);
+      } catch (error) {
+        console.error("Erro ao buscar jogos:", error);
       } finally {
         setLoading(false);
         loadingRef.current = false;
@@ -116,9 +150,10 @@ export default function ListDetailScreen() {
     [listId, cursor]
   );
 
+  // Carrega inicial
   useEffect(() => {
-    fetchGames(true);
-  }, [fetchGames]);
+    if (listId) fetchGames(true);
+  }, [listId]);
 
   const loadMore = () => {
     if (cursor == null || loading || loadingRef.current) return;
@@ -127,15 +162,15 @@ export default function ListDetailScreen() {
 
   if (loading && games.length === 0) {
     return (
-      <View className="flex-1 bg-vapor-primary items-center justify-center">
+      <View className="flex-1 bg-slate-900 items-center justify-center">
         <ActivityIndicator size="large" color="#e2e8f0" />
-        <Text className="text-slate-400 mt-3">Carregando…</Text>
+        <Text className="text-slate-400 mt-3">Carregando jogos…</Text>
       </View>
     );
   }
 
   return (
-    <View className="flex-1 bg-vapor-primary">
+    <View className="flex-1 bg-slate-900">
       {/* Header da lista */}
       <View
         className="px-4 pb-3 pt-4 border-b border-slate-700/20"
@@ -183,7 +218,12 @@ export default function ListDetailScreen() {
         <FlatList
           data={games}
           keyExtractor={(g) => String(g.id)}
-          renderItem={({ item }) => <GameCard game={item} />}
+          renderItem={({ item }) => (
+            <GameCard 
+                game={item} 
+                onPress={() => openGameDetails(item)} 
+            />
+          )}
           numColumns={3}
           columnWrapperStyle={{
             justifyContent: "flex-start",
@@ -193,6 +233,7 @@ export default function ListDetailScreen() {
           contentContainerStyle={{ paddingTop: 8, paddingBottom: 12 }}
           showsVerticalScrollIndicator={false}
           onEndReachedThreshold={0.5}
+          onEndReached={loadMore}
           ListFooterComponent={
             loading && cursor !== null ? (
               <View className="py-4 items-center">
@@ -202,6 +243,16 @@ export default function ListDetailScreen() {
           }
         />
       )}
+
+      {/* --- AQUI ESTAVA O PROBLEMA ANTES --- */}
+      {/* Agora passando listId e a função de callback corretamente */}
+      <GameDetails 
+        visible={detailsVisible}
+        onClose={closeGameDetails}
+        game={selectedGame}
+        currentListId={listId}           // <--- IMPORTANTE: Passa o ID da lista
+        onRemoveSuccess={handleGameRemoved} // <--- IMPORTANTE: Passa o callback
+      />
     </View>
   );
 }

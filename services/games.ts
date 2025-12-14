@@ -1,6 +1,6 @@
 // services/games.ts
 
-import { AchievementsResponse, GamesListResponse } from '@/types'; // Adicione AchievementsResponse aqui
+import { AchievementsResponse, GameDetails, GamesListResponse } from '@/types'; // Adicione AchievementsResponse aqui
 import api from './api';
 
 interface GetGamesParams {
@@ -41,6 +41,16 @@ export async function getGameAchievements(gameId: number): Promise<AchievementsR
     return response.data;
   } catch (error) {
     console.error(`Erro ao buscar conquistas do jogo ${gameId}:`, error);
+    throw error;
+  }
+}
+
+export async function getGameDetails(appId: number): Promise<GameDetails> {
+  try {
+    const response = await api.get<GameDetails>(`/games/${appId}/details`);
+    return response.data;
+  } catch (error) {
+    console.error(`Erro ao buscar detalhes do jogo ${appId}:`, error);
     throw error;
   }
 }
