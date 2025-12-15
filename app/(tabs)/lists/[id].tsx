@@ -1,7 +1,7 @@
 import { deleteList, getListGames } from "@/services/lists";
 import { Game } from "@/types";
 import { Image as ExpoImage } from "expo-image";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { ArrowLeft, Trash2 } from "lucide-react-native";
 import React, {
   useCallback,
@@ -124,18 +124,21 @@ export default function ListDetailScreen() {
     setTimeout(() => setSelectedGame(null), 300);
   };
 
-  const handleGameRemoved = () => {
-    fetchGames(true);
-  };
-
   const fetchGames = useCallback(
     async (reset = true) => {
+      if (!listId) return;
       if (loadingRef.current) return;
+
       loadingRef.current = true;
+
       try {
-        if (reset) setLoading(true);
+        if (reset) {
+          setLoading(true);
+          setCursor(undefined);
+        }
 
         const res = await getListGames(listId, reset ? {} : { cursor });
+
         setGames((prev) => (reset ? res.data : [...prev, ...res.data]));
         setCursor(res.cursor ?? null);
       } finally {
@@ -146,19 +149,31 @@ export default function ListDetailScreen() {
     [listId, cursor]
   );
 
+  // reset quando muda de lista
   useEffect(() => {
     setGames([]);
     setCursor(undefined);
     setLoading(true);
   }, [listId]);
 
+  // carrega ao entrar pela primeira vez
   useEffect(() => {
     if (listId) fetchGames(true);
-  }, [listId]);
+  }, [listId, fetchGames]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (listId) fetchGames(true);
+    }, [listId, fetchGames])
+  );
 
   const loadMore = () => {
     if (cursor == null || loading || loadingRef.current) return;
     fetchGames(false);
+  };
+
+  const handleGameRemoved = () => {
+    fetchGames(true);
   };
 
   /* ================= DELETE LIST (WEB + MOBILE) ================= */
@@ -183,11 +198,7 @@ export default function ListDetailScreen() {
         "Tem certeza que deseja excluir esta lista?",
         [
           { text: "Cancelar", style: "cancel" },
-          {
-            text: "Excluir",
-            style: "destructive",
-            onPress: confirmDelete,
-          },
+          { text: "Excluir", style: "destructive", onPress: confirmDelete },
         ]
       );
     }

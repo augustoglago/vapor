@@ -132,7 +132,6 @@ export default function ListsScreen() {
     }
   }, []);
 
-  /* 🔥 ESSENCIAL: recarrega sempre que a tela ganha foco */
   useFocusEffect(
     useCallback(() => {
       fetchLists();
