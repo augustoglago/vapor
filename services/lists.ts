@@ -70,6 +70,25 @@ export async function addGamesToList(
   return res.data;
 }
 
+// ----- REMOVE GAMES FROM LIST (NOVO) -----
+export interface RemoveGamesResponse {
+  message?: string;
+  error?: string;
+}
+
+export async function removeGameFromList(
+  listId: number,
+  gameId: number
+): Promise<RemoveGamesResponse> {
+  // ATENÇÃO: Em requisições DELETE com body (axios), usamos a propriedade 'data'
+  const res = await api.delete<RemoveGamesResponse>(`/games-lists/${listId}`, {
+    data: {
+      gameIds: [gameId],
+    },
+  });
+  return res.data;
+}
+
 // --- GET GAMES FROM LIST ---
 
 export interface GetListGamesParams {

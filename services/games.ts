@@ -1,6 +1,6 @@
 // services/games.ts
 
-import { GamesListResponse } from '@/types';
+import { AchievementsResponse, GameDetails, GamesListResponse } from '@/types'; // Adicione AchievementsResponse aqui
 import api from './api';
 
 interface GetGamesParams {
@@ -24,6 +24,33 @@ export async function getGames({ cursor, search }: GetGamesParams): Promise<Game
     return response.data;
   } catch (error) {
     console.error('Erro ao buscar jogos:', error);
+    throw error;
+  }
+}
+
+/**
+ * Busca as conquistas de um jogo específico e o progresso do usuário.
+ * Endpoint baseado no Swagger: GET /achievements/{id}
+ * @param gameId - ID do jogo.
+ * @returns Uma Promise com a lista de conquistas e IDs completados.
+ */
+export async function getGameAchievements(gameId: number): Promise<AchievementsResponse> {
+  try {
+    // A rota no Swagger é /achievements/{id}
+    const response = await api.get<AchievementsResponse>(`/achievements/${gameId}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Erro ao buscar conquistas do jogo ${gameId}:`, error);
+    throw error;
+  }
+}
+
+export async function getGameDetails(appId: number): Promise<GameDetails> {
+  try {
+    const response = await api.get<GameDetails>(`/games/${appId}/details`);
+    return response.data;
+  } catch (error) {
+    console.error(`Erro ao buscar detalhes do jogo ${appId}:`, error);
     throw error;
   }
 }
