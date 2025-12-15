@@ -1,31 +1,42 @@
-// app/auth/register.tsx
 import { Button, ButtonText } from "@/components/ui/button";
 import { Input, InputField } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import {
-    Toast,
-    ToastDescription,
-    ToastTitle,
-    useToast,
+  Toast,
+  ToastDescription,
+  ToastTitle,
+  useToast,
 } from "@/components/ui/toast";
+import { Avatar, getAvatars } from "@/services/avatars";
 import { registerUser } from "@/services/users";
+import { Image as ExpoImage } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
-    KeyboardAvoidingView,
-    Platform,
-    Pressable,
-    ScrollView,
-    View,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  View,
 } from "react-native";
+
+/* ================= tipos ================= */
 
 type Errors = Partial<
   Record<
-    "nickName" | "firstName" | "lastName" | "email" | "password" | "birthDate",
+    | "nickName"
+    | "firstName"
+    | "lastName"
+    | "email"
+    | "password"
+    | "birthDate"
+    | "avatar",
     string
   >
 >;
+
+/* ================= helpers ================= */
 
 function toISODateZ(value: string): string | null {
   const clean = (value || "").trim();
@@ -41,6 +52,8 @@ function toISODateZ(value: string): string | null {
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+/* ================= tela ================= */
+
 export default function Register() {
   const toast = useToast();
 
@@ -51,10 +64,15 @@ export default function Register() {
   const [password, setPassword] = useState("");
   const [birthDate, setBirthDate] = useState("");
 
+  const [avatars, setAvatars] = useState<Avatar[]>([]);
+  const [selectedAvatarId, setSelectedAvatarId] = useState<number | null>(null);
+
   const [isLoading, setIsLoading] = useState(false);
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const markTouched = (k: keyof Errors) =>
     setTouched((t) => ({ ...t, [k]: true }));
+
+  /* ================= validação ================= */
 
   const errors: Errors = useMemo(() => {
     const e: Errors = {};
@@ -68,8 +86,19 @@ export default function Register() {
     if (!birthDate.trim()) e.birthDate = "Informe a data.";
     else if (!toISODateZ(birthDate))
       e.birthDate = "Use DD/MM/AAAA ou AAAA-MM-DD.";
+    if (!selectedAvatarId) e.avatar = "Escolha um avatar.";
     return e;
-  }, [nickName, firstName, lastName, email, password, birthDate]);
+  }, [
+    nickName,
+    firstName,
+    lastName,
+    email,
+    password,
+    birthDate,
+    selectedAvatarId,
+  ]);
+
+  /* ================= toast ================= */
 
   const showToast = (
     title: string,
@@ -88,6 +117,18 @@ export default function Register() {
     });
   };
 
+  /* ================= buscar avatares ================= */
+
+  useEffect(() => {
+    getAvatars()
+      .then(setAvatars)
+      .catch(() =>
+        showToast("Erro", "Não foi possível carregar os avatares.", "error")
+      );
+  }, []);
+
+  /* ================= submit ================= */
+
   const handleSubmit = async () => {
     setTouched({
       nickName: true,
@@ -96,9 +137,9 @@ export default function Register() {
       email: true,
       password: true,
       birthDate: true,
+      avatar: true,
     });
 
-    // se houver qualquer erro, aborta
     if (Object.keys(errors).length) {
       showToast(
         "Verifique os campos",
@@ -119,6 +160,7 @@ export default function Register() {
         email: email.trim(),
         password,
         birth_date: iso,
+        avatar_id: selectedAvatarId!,
       });
 
       showToast(
@@ -138,7 +180,8 @@ export default function Register() {
     }
   };
 
-  // helper para classe de erro
+  /* ================= helpers UI ================= */
+
   const fieldClass = (hasError: boolean) =>
     `rounded-xl bg-slate-800/80 border ${
       hasError ? "border-red-500/70" : "border-slate-700/50"
@@ -147,12 +190,12 @@ export default function Register() {
   const errText = (t: boolean | undefined, msg?: string) =>
     t && msg ? <Text className="text-xs text-red-400 mt-1">{msg}</Text> : null;
 
+  /* ================= render ================= */
+
   return (
     <LinearGradient
       colors={["#0f172a", "#1e293b", "#334155"]}
       className="flex-1"
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
     >
       <KeyboardAvoidingView
         className="flex-1"
@@ -163,11 +206,46 @@ export default function Register() {
           keyboardShouldPersistTaps="handled"
         >
           <View className="flex-1 justify-center px-8 py-12">
-            <Text className="text-3xl text-slate-50 font-outfit mt-2 mb-6 font-bold">
+            <Text className="text-3xl text-slate-50 font-bold mb-6">
               Criar conta
             </Text>
 
             <View className="gap-4">
+              {/* Avatar */}
+              <View>
+                <Text className="text-md text-slate-200 font-semibold mb-3">
+                  Escolha um avatar
+                </Text>
+
+                <View className="flex-row flex-wrap">
+                  {avatars.map((avatar) => {
+                    const selected = avatar.id === selectedAvatarId;
+
+                    return (
+                      <Pressable
+                        key={avatar.id}
+                        onPress={() => setSelectedAvatarId(avatar.id)}
+                        className={`mr-3 mb-3 rounded-full border-2 ${
+                          selected ? "border-blue-500" : "border-transparent"
+                        }`}
+                      >
+                        <ExpoImage
+                          source={{ uri: avatar.link }}
+                          style={{
+                            width: 64,
+                            height: 64,
+                            borderRadius: 32,
+                            opacity: selected ? 1 : 0.85,
+                          }}
+                        />
+                      </Pressable>
+                    );
+                  })}
+                </View>
+
+                {errText(touched.avatar, errors.avatar)}
+              </View>
+
               {/* Nickname */}
               <View>
                 <Text className="text-md text-slate-200 font-semibold mb-2">
@@ -270,7 +348,6 @@ export default function Register() {
                     placeholder="••••••••"
                     placeholderTextColor="#94a3b8"
                     secureTextEntry
-                    autoCapitalize="none"
                     className="text-slate-100 h-14"
                     value={password}
                     onChangeText={setPassword}
@@ -304,7 +381,7 @@ export default function Register() {
             </View>
 
             <Button
-              className="rounded-xl mt-8 bg-blue-700 shadow-xl"
+              className="rounded-xl mt-8 bg-blue-700"
               onPress={handleSubmit}
               isDisabled={isLoading}
             >

@@ -1,13 +1,14 @@
-// services/lists.ts
 import type { Game } from "@/types";
 import api from "./api";
 
-// ----- CREATE -----
+/* ================= CREATE LIST ================= */
+
 export interface CreateListPayload {
   name: string;
   icon?: string;
   color?: string;
 }
+
 export interface CreateListResponse {
   message: string;
   data: {
@@ -18,6 +19,7 @@ export interface CreateListResponse {
     color: string | null;
   };
 }
+
 export async function createList(
   payload: CreateListPayload
 ): Promise<CreateListResponse> {
@@ -25,7 +27,8 @@ export async function createList(
   return res.data;
 }
 
-// ----- GET (todas) -----
+/* ================= GET LISTS ================= */
+
 export interface ListItem {
   id: number;
   user_id: number;
@@ -33,55 +36,74 @@ export interface ListItem {
   icon?: string | null;
   color?: string | null;
 }
+
 export interface GetListsResponse {
   message: string;
   data: ListItem[];
 }
+
 export async function getLists(): Promise<GetListsResponse> {
   const res = await api.get<GetListsResponse>("/lists");
   return res.data;
 }
 
-// ----- GET (uma lista por id) -----
+/* ================= GET LIST BY ID ================= */
+
 export interface GetListByIdResponse {
   message: string;
   data: ListItem;
 }
+
 export async function getListById(id: number): Promise<ListItem> {
   const res = await api.get<GetListByIdResponse>(`/lists/${id}`);
   return res.data.data;
 }
 
-// ----- ADD GAMES TO LIST -----
-export interface AddGamesPayload {
-  gameIds: number[];
+/* ================= UPDATE LIST ================= */
+
+export interface UpdateListPayload {
+  name?: string;
+  icon?: string;
+  color?: string;
 }
-export interface AddGamesResponse {
+
+export interface UpdateListResponse {
   message: string;
+  data: ListItem;
 }
-export async function addGamesToList(
+
+export async function updateList(
   listId: number,
-  payload: AddGamesPayload
-): Promise<AddGamesResponse> {
-  const res = await api.post<AddGamesResponse>(
-    `/games-lists/${listId}`,
-    payload
-  );
+  payload: UpdateListPayload
+): Promise<UpdateListResponse> {
+  const res = await api.put<UpdateListResponse>(`/lists/${listId}`, payload);
   return res.data;
 }
 
-// ----- REMOVE GAMES FROM LIST (NOVO) -----
-export interface RemoveGamesResponse {
-  message?: string;
-  error?: string;
+/* ================= DELETE LIST ================= */
+
+export interface DeleteListResponse {
+  message: string;
 }
 
-export async function removeGameFromList(
-  listId: number,
-  gameId: number
-): Promise<RemoveGamesResponse> {
-  // ATENÇÃO: Em requisições DELETE com body (axios), usamos a propriedade 'data'
-  const res = await api.delete<RemoveGamesResponse>(`/games-lists/${listId}`, {
+export async function deleteList(listId: number): Promise<DeleteListResponse> {
+  const res = await api.delete<DeleteListResponse>(`/lists/${listId}`);
+  return res.data;
+}
+
+/* ================= GAMES IN LIST ================= */
+
+export interface AddGamesPayload {
+  gameIds: number[];
+}
+
+export async function addGamesToList(listId: number, payload: AddGamesPayload) {
+  const res = await api.post(`/games-lists/${listId}`, payload);
+  return res.data;
+}
+
+export async function removeGameFromList(listId: number, gameId: number) {
+  const res = await api.delete(`/games-lists/${listId}`, {
     data: {
       gameIds: [gameId],
     },
@@ -89,14 +111,12 @@ export async function removeGameFromList(
   return res.data;
 }
 
-// --- GET GAMES FROM LIST ---
+/* ================= GET GAMES FROM LIST ================= */
 
 export interface GetListGamesParams {
   cursor?: number;
-  sortBy?: "id" | "game_id" | "created_at" | "appId" | "name";
-  setOrder?: "asc" | "desc";
-  search?: string;
 }
+
 export interface GetListGamesResponse {
   data: Game[];
   cursor?: number | null;

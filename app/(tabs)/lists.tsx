@@ -1,25 +1,26 @@
 // app/(tabs)/lists.tsx
 import {
-    Toast,
-    ToastDescription,
-    ToastTitle,
-    useToast,
+  Toast,
+  ToastDescription,
+  ToastTitle,
+  useToast,
 } from "@/components/ui/toast";
 import { getLists, ListItem } from "@/services/lists";
-import { router } from "expo-router";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { router, useFocusEffect } from "expo-router";
+import React, { useCallback, useMemo, useState } from "react";
 import {
-    ActivityIndicator,
-    FlatList,
-    Pressable,
-    RefreshControl,
-    Text,
-    View,
+  ActivityIndicator,
+  FlatList,
+  Pressable,
+  RefreshControl,
+  Text,
+  View,
 } from "react-native";
 
-/** ---------- helpers de cor ---------- */
+/* ================= Helpers de cor ================= */
+
 function hexToRgb(hex?: string) {
-  if (!hex) return { r: 71, g: 85, b: 105 }; // slate-600 fallback
+  if (!hex) return { r: 71, g: 85, b: 105 };
   let h = hex.replace("#", "");
   if (h.length === 3)
     h = h
@@ -32,19 +33,18 @@ function hexToRgb(hex?: string) {
 
 function getReadableTextColor(hex?: string) {
   const { r, g, b } = hexToRgb(hex);
-  // luminância relativa (WCAG)
   const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
-  return luminance > 0.6 ? "#0f172a" /* slate-900 */ : "#F8FAFC" /* slate-50 */;
+  return luminance > 0.6 ? "#0f172a" : "#F8FAFC";
 }
 
 function mixWithSlate(hex?: string, factor = 0.35) {
-  // mistura a cor escolhida com um tom escuro pra dar profundidade no card
   const { r, g, b } = hexToRgb(hex);
-  const slate = { r: 15, g: 23, b: 42 }; // slate-900
+  const slate = { r: 15, g: 23, b: 42 };
   const m = (a: number, b: number) => Math.round(a * (1 - factor) + b * factor);
   return `rgb(${m(r, slate.r)}, ${m(g, slate.g)}, ${m(b, slate.b)})`;
 }
-/** ------------------------------------ */
+
+/* ================= Card ================= */
 
 function ListCard({ item }: { item: ListItem }) {
   const bg = useMemo(
@@ -55,7 +55,6 @@ function ListCard({ item }: { item: ListItem }) {
     () => getReadableTextColor(item.color ?? "#475569"),
     [item.color]
   );
-  const border = "rgba(0,0,0,0.25)";
 
   return (
     <Pressable
@@ -72,11 +71,10 @@ function ListCard({ item }: { item: ListItem }) {
       className="w-1/2 px-2 mb-3"
     >
       <View
-        className="h-28 rounded-2xl p-3 overflow-hidden"
+        className="h-28 rounded-2xl p-3 overflow-hidden border"
         style={{
           backgroundColor: bg,
-          borderColor: border,
-          borderWidth: 1,
+          borderColor: "rgba(0,0,0,0.25)",
         }}
       >
         <Text style={{ color: text }} className="text-2xl mb-1">
@@ -89,7 +87,7 @@ function ListCard({ item }: { item: ListItem }) {
         >
           {item.name}
         </Text>
-        <Text className="text-xs mt-0.5" style={{ color: text + "AA" }}>
+        <Text style={{ color: text + "AA" }} className="text-xs mt-0.5">
           toque para abrir
         </Text>
       </View>
@@ -97,8 +95,11 @@ function ListCard({ item }: { item: ListItem }) {
   );
 }
 
+/* ================= Tela ================= */
+
 export default function ListsScreen() {
   const toast = useToast();
+
   const [lists, setLists] = useState<ListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -119,6 +120,7 @@ export default function ListsScreen() {
     try {
       if (isRefresh) setRefreshing(true);
       else setLoading(true);
+
       const res = await getLists();
       setLists(res.data ?? []);
     } catch (e: any) {
@@ -130,11 +132,14 @@ export default function ListsScreen() {
     }
   }, []);
 
-  useEffect(() => {
-    fetchLists();
-  }, [fetchLists]);
+  /* 🔥 ESSENCIAL: recarrega sempre que a tela ganha foco */
+  useFocusEffect(
+    useCallback(() => {
+      fetchLists();
+    }, [fetchLists])
+  );
 
-  if (loading) {
+  if (loading && lists.length === 0) {
     return (
       <View className="flex-1 bg-vapor-primary items-center justify-center">
         <ActivityIndicator size="large" color="#e2e8f0" />

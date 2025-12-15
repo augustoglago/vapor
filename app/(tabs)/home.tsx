@@ -1,8 +1,6 @@
-// app/(tabs)/home.tsx
-
 import { Image as ExpoImage } from "expo-image";
-import { router } from "expo-router";
-import React, { useCallback, useEffect, useState } from "react";
+import { router, useFocusEffect } from "expo-router";
+import React, { useCallback, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -14,120 +12,51 @@ import {
 } from "react-native";
 
 import { getGames } from "@/services/games";
+import { getLists, ListItem } from "@/services/lists";
+import { getMe, UserMe } from "@/services/users";
 import { Game } from "@/types";
 
-// Importação do componente de Detalhes criado acima
 import GameDetails from "./gamedetails";
 
-// --- Componentes Auxiliares ---
+/* ================= helpers de cor ================= */
 
-function SectionTitle({
-  title,
-  actionLabel,
-  onPressAction,
-}: {
-  title: string;
-  actionLabel?: string;
-  onPressAction?: () => void;
-}) {
-  return (
-    <View className="px-4 mt-4 mb-1 flex-row items-center justify-between">
-      <Text className="text-slate-100 text-lg font-semibold">{title}</Text>
-      {!!actionLabel && onPressAction ? (
-        <Pressable
-          onPress={onPressAction}
-          className="px-3 py-1 rounded-full bg-slate-700/40 border border-slate-600/40"
-        >
-          <Text className="text-slate-200 text-xs font-medium">
-            {actionLabel}
-          </Text>
-        </Pressable>
-      ) : null}
-    </View>
-  );
+function hexToRgb(hex?: string) {
+  if (!hex) return { r: 71, g: 85, b: 105 };
+  let h = hex.replace("#", "");
+  if (h.length === 3)
+    h = h
+      .split("")
+      .map((c) => c + c)
+      .join("");
+  const num = parseInt(h, 16);
+  return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
 }
 
-function CategoryPill({ name, onPress }: { name: string; onPress: () => void }) {
-  return (
-    <Pressable
-      onPress={onPress}
-      className="mr-2 px-3 py-2 rounded-full bg-slate-800/60 border border-slate-700/50"
-    >
-      <Text className="text-slate-300 text-xs">{name}</Text>
-    </Pressable>
-  );
+function getReadableTextColor(hex?: string) {
+  const { r, g, b } = hexToRgb(hex);
+  const L = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+  return L > 0.6 ? "#0f172a" : "#F8FAFC";
 }
 
-function UserListCard({
-  title,
-  subtitle,
-  count,
-  onPress,
-  gradientClass,
-}: {
-  title: string;
-  subtitle: string;
-  count?: number;
-  onPress: () => void;
-  gradientClass?: string;
-}) {
-  return (
-    <Pressable onPress={onPress} className="w-1/2 px-2 mb-3">
-      <View
-        className={`h-28 rounded-xl p-3 border border-slate-700/40 bg-gradient-to-r ${
-          gradientClass ?? "from-slate-800/80 to-slate-700/60"
-        }`}
-      >
-        <View className="flex-row justify-between items-start">
-          <Text
-            className="text-slate-100 text-sm font-semibold"
-            numberOfLines={1}
-          >
-            {title}
-          </Text>
-          {typeof count === "number" ? (
-            <View className="px-2 py-0.5 rounded-full bg-slate-900/40 border border-slate-700/50">
-              <Text className="text-slate-200 text-2xs">{count}</Text>
-            </View>
-          ) : null}
-        </View>
-
-        <Text className="text-slate-300 text-xs mt-1" numberOfLines={2}>
-          {subtitle}
-        </Text>
-      </View>
-    </Pressable>
-  );
+function mixWithSlate(hex?: string, factor = 0.28) {
+  const { r, g, b } = hexToRgb(hex);
+  const slate = { r: 15, g: 23, b: 42 };
+  const m = (a: number, b: number) => Math.round(a * (1 - factor) + b * factor);
+  return `rgb(${m(r, slate.r)}, ${m(g, slate.g)}, ${m(b, slate.b)})`;
 }
 
-function GameThumb({ game, onPress }: { game: Game; onPress?: () => void }) {
-  return (
-    <Pressable onPress={onPress} className="mr-3">
-      <View className="w-36 h-52 rounded-xl overflow-hidden border border-slate-700/30 bg-slate-800/40">
-        <ExpoImage
-          source={{ uri: game.capsuleImageUrl }}
-          contentFit="cover"
-          className="w-full h-full"
-        />
-      </View>
-      <Text numberOfLines={1} className="text-slate-200 mt-2 w-36 text-xs">
-        {game.name ?? "Jogo"}
-      </Text>
-    </Pressable>
-  );
-}
-
-// --- Componente Principal ---
+/* ================= tela ================= */
 
 export default function HomeScreen() {
   const [featured, setFeatured] = useState<Game[]>([]);
-  const [recent, setRecent] = useState<Game[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [lists, setLists] = useState<ListItem[]>([]);
+  const [user, setUser] = useState<UserMe | null>(null);
+
+  const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  // --- Lógica do GameDetails (Modal) ---
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
-  const [isDrawerVisible, setDrawerVisible] = useState(false);
+  const [drawerVisible, setDrawerVisible] = useState(false);
 
   const openGameDetails = useCallback((game: Game) => {
     setSelectedGame(game);
@@ -136,48 +65,60 @@ export default function HomeScreen() {
 
   const closeGameDetails = useCallback(() => {
     setDrawerVisible(false);
-    // Pequeno delay para limpar o jogo apenas após a animação de fechar (opcional)
-    setTimeout(() => setSelectedGame(null), 300);
+    setTimeout(() => setSelectedGame(null), 250);
   }, []);
-  // -------------------------------------
 
   const fetchHomeData = useCallback(async (isRefresh = false) => {
     try {
       if (isRefresh) setRefreshing(true);
       else setLoading(true);
 
-      const result = await getGames({ cursor: undefined, search: undefined });
-      const list = result.data || [];
+      // 🔥 LIMPA ESTADO ANTES DO FETCH
+      if (!isRefresh) {
+        setFeatured([]);
+        setLists([]);
+        setUser(null);
+      }
 
-      setFeatured(list.slice(0, 8));
-      setRecent(list.slice(8, 20));
+      const [gamesRes, listsRes, me] = await Promise.all([
+        getGames({}),
+        getLists(),
+        getMe(),
+      ]);
+
+      const games = gamesRes.data ?? [];
+      setFeatured(games.slice(0, 8));
+      setLists(listsRes.data ?? []);
+      setUser(me);
     } catch (e) {
       console.error("Home fetch error:", e);
       setFeatured([]);
-      setRecent([]);
+      setLists([]);
+      setUser(null);
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
   }, []);
 
-  useEffect(() => {
-    fetchHomeData();
-  }, [fetchHomeData]);
+  /* 🔥 ESSENCIAL: roda sempre que a Home ganha foco */
+  useFocusEffect(
+    useCallback(() => {
+      fetchHomeData();
+    }, [fetchHomeData])
+  );
 
-  if (loading) {
+  if (loading && featured.length === 0 && lists.length === 0) {
     return (
       <View className="flex-1 bg-slate-900 items-center justify-center">
         <ActivityIndicator size="large" color="#e2e8f0" />
-        <Text className="text-slate-400 mt-3">Carregando...</Text>
+        <Text className="text-slate-400 mt-3">Carregando…</Text>
       </View>
     );
   }
 
   return (
-    <View className="flex-1 bg-slate-900"> 
-      {/* Nota: Ajustei bg-vapor-primary para bg-slate-900 para garantir consistência se a classe customizada não existir */}
-      
+    <View className="flex-1 bg-slate-900">
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 16 }}
@@ -189,138 +130,100 @@ export default function HomeScreen() {
           />
         }
       >
-        {/* Categorias */}
-        <SectionTitle title="Categorias" />
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 8 }}
-        >
-          {[
-            "Ação",
-            "RPG",
-            "Corrida",
-            "Indie",
-            "Estratégia",
-            "Multiplayer",
-            "Simulação",
-          ].map((c) => (
-            <CategoryPill
-              key={c}
-              name={c}
-              onPress={() => router.push("/gamelist")}
-            />
-          ))}
-        </ScrollView>
+        {/* ===== Boas-vindas ===== */}
+        {user && (
+          <View className="px-4 pt-4 pb-2">
+            <Text className="text-slate-400 text-xs">👋 Bem-vindo,</Text>
+            <Text className="text-slate-100 text-xl font-semibold">
+              {user.nick_name}
+            </Text>
+          </View>
+        )}
 
-        {/* Minhas listas (visual) */}
-        <SectionTitle
-          title="Minhas listas"
-          actionLabel="Criar"
-          onPressAction={() => router.push("/lists/create")}
-        />
-        <View className="px-4 mb-1">
+        {/* ===== Minhas listas ===== */}
+        <View className="px-4 mt-4 mb-2">
+          <Text className="text-slate-100 text-lg font-semibold">
+            Minhas listas
+          </Text>
+        </View>
+
+        <View className="px-4 mb-4">
           <View className="flex-row flex-wrap -mx-2">
-            {[
-              {
-                key: "wishlist",
-                title: "Quero jogar",
-                desc: "Guarde os próximos da fila",
-                count: 12,
-                color: "from-sky-800/70 to-sky-700/50",
-              },
-              {
-                key: "playing",
-                title: "Jogando agora",
-                desc: "Continue de onde parou",
-                count: 3,
-                color: "from-emerald-800/70 to-emerald-700/50",
-              },
-              {
-                key: "completed",
-                title: "Zerados",
-                desc: "Sua coleção finalizada",
-                count: 18,
-                color: "from-violet-800/70 to-violet-700/50",
-              },
-              {
-                key: "favorites",
-                title: "Favoritos",
-                desc: "Os indispensáveis",
-                count: 7,
-                color: "from-amber-800/70 to-amber-700/50",
-              },
-            ].map((l) => (
-              <UserListCard
-                key={l.key}
-                title={l.title}
-                subtitle={l.desc}
-                count={l.count}
-                gradientClass={l.color}
-                onPress={() => router.push(`/lists/${l.key}`)}
-              />
-            ))}
+            {lists.length === 0 ? (
+              <Text className="text-slate-400 px-2">
+                Você ainda não criou nenhuma lista.
+              </Text>
+            ) : (
+              lists.slice(0, 4).map((l) => (
+                <Pressable
+                  key={l.id}
+                  className="w-1/2 px-2 mb-3"
+                  onPress={() =>
+                    router.push({
+                      pathname: `/lists/${l.id}`,
+                      params: {
+                        name: l.name,
+                        icon: l.icon ?? "",
+                        color: l.color ?? "",
+                      },
+                    })
+                  }
+                >
+                  <View
+                    className="h-28 rounded-xl p-3 border border-slate-700/40"
+                    style={{ backgroundColor: mixWithSlate(l.color) }}
+                  >
+                    <Text className="text-2xl mb-1">{l.icon || "🎮"}</Text>
+                    <Text
+                      className="text-slate-100 font-semibold"
+                      numberOfLines={1}
+                    >
+                      {l.name}
+                    </Text>
+                  </View>
+                </Pressable>
+              ))
+            )}
           </View>
         </View>
 
-        {/* Destaques - Agora abre o Modal */}
-        <SectionTitle
-          title="Destaques"
-          actionLabel="Ver todos"
-          onPressAction={() => router.push("/gamelist")}
-        />
+        {/* ===== Destaques ===== */}
+        <View className="px-4 mb-2">
+          <Text className="text-slate-100 text-lg font-semibold">
+            Destaques
+          </Text>
+        </View>
+
         <FlatList
           data={featured}
-          keyExtractor={(item) => String(item.id)}
           horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 6 }}
-          renderItem={({ item }) => (
-            <GameThumb 
-                game={item} 
-                onPress={() => openGameDetails(item)} 
-            />
-          )}
-          ListEmptyComponent={
-            <Text className="text-slate-400 px-4">
-              Nenhum destaque disponível.
-            </Text>
-          }
-          scrollEnabled
-        />
-
-        {/* Recentes - Agora abre o Modal */}
-        <SectionTitle
-          title="Recentes"
-          actionLabel="Ver todos"
-          onPressAction={() => router.push("/gamelist")}
-        />
-        <FlatList
-          data={recent}
           keyExtractor={(item) => String(item.id)}
-          horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 6 }}
+          contentContainerStyle={{ paddingHorizontal: 16 }}
           renderItem={({ item }) => (
-            <GameThumb 
-                game={item} 
-                onPress={() => openGameDetails(item)} 
-            />
+            <Pressable onPress={() => openGameDetails(item)} className="mr-3">
+              <View className="w-36 h-52 rounded-xl overflow-hidden border border-slate-700/30">
+                <ExpoImage
+                  source={{ uri: item.capsuleImageUrl }}
+                  contentFit="cover"
+                  className="w-full h-full"
+                />
+              </View>
+              <Text
+                numberOfLines={1}
+                className="text-slate-200 mt-2 w-36 text-xs"
+              >
+                {item.name}
+              </Text>
+            </Pressable>
           )}
-          ListEmptyComponent={
-            <Text className="text-slate-400 px-4">
-              Nenhum jogo recente disponível.
-            </Text>
-          }
-          scrollEnabled
         />
       </ScrollView>
 
-      {/* Componente Modal Renderizado aqui */}
       <GameDetails
-        visible={isDrawerVisible}
-        onClose={closeGameDetails}
+        visible={drawerVisible}
         game={selectedGame}
+        onClose={closeGameDetails}
       />
     </View>
   );
