@@ -1,7 +1,8 @@
 # 🎮 Vapor
 
-Um aplicativo para organizar sua vida gamer: crie listas de jogos, acompanhe suas conquistas e monte pastas personalizadas com seus interesses.  
-O objetivo do projeto é oferecer uma forma simples, moderna e intuitiva de gerenciar sua biblioteca e progresso em jogos.
+Um aplicativo para organizar sua vida gamer: crie listas de jogos, acompanhe suas conquistas e monte pastas personalizadas com seus interesses. O objetivo do projeto é oferecer uma forma simples, moderna e intuitiva de gerenciar sua biblioteca e progresso em jogos.
+
+![Preview](assets/images/preview.jpg)
 
 ## 📋 Sobre o Projeto
 
@@ -14,12 +15,25 @@ Os usuários podem:
 - 🔎 **Busca rápida**: encontre jogos facilmente.
 - 🌐 **Interface intuitiva**: design simples e responsivo.
 
-
 Este projeto faz parte de uma arquitetura maior, onde:
 * **Frontend**: [Vapor](https://github.com/augustoglago/vapor) `React Native`;
 * **Backend**: [Vapor API](https://github.com/lucas-0331/project) `NodeJS`.
 
----
+## ✨ Funcionalidades
+
+- **Autenticação e sessão**: telas de login/registro, armazenamento seguro de tokens (`expo-secure-store` / `AsyncStorage`) e proteção de rotas na interface.
+- **Gerenciamento de usuário**: telas para registrar, visualizar e editar o perfil do usuário (`/users`, `/users/me`).
+- **Avatares**: seleção e exibição de avatares disponíveis e atualização local do avatar do usuário.
+- **Listas pessoais (UI)**: criar, editar e remover listas do usuário com ícone e cor, ordenação e reorganização via interface.
+- **Associação de jogos a listas**: adicionar/remover múltiplos jogos em listas, com busca, filtros e paginação na UI.
+- **Catálogo de jogos**: listagem com infinite-scroll/paginação, busca por nome, filtros e ordenação consumindo `/games`.
+- **Detalhes de jogo**: tela de detalhes que consome `/games/{appId}/details`, mostrando imagens, screenshots, descrição e requisitos.
+- **Conquistas**: exibir conquistas do jogo e permitir marcar/desmarcar conquistas concluídas pelo usuário.
+- **Sincronia e cache**: cache local, atualizações otimistas e sincronização com o backend para melhorar UX em conexão instável.
+- **Paginação & filtros (UI)**: suporte a `cursor`, `search`, `sortBy` e `setOrder` nas telas que consomem endpoints relevantes.
+- **Segurança e tratamento de erros**: interceptores Axios para `Bearer` token, feedbacks visuais (toasts/modals) e tratamento consistente de 401/403/404/500.
+- **Acessibilidade, temas e componentes**: suporte a tema claro/escuro, componentes reutilizáveis e animações suaves para melhor usabilidade.
+- **Integração com API**: cliente Axios centralizado e hooks/utilitários (ex.: `useGames`, `useLists`) para padronizar chamadas e estados de carregamento.
 
 ## 🏗️ Infraestrutura
 
@@ -29,8 +43,6 @@ Este projeto faz parte de uma arquitetura maior, onde:
     - [https://vapor-73xs.onrender.com/](https://vapor-73xs.onrender.com/)
 - **Banco de Dados**: [Aiven](https://aiven.io/) 
     - PostgreSQL
-
----
 
 ## 🚀 Tecnologias Utilizadas
 
@@ -50,8 +62,6 @@ A stack deste projeto combina **React Native** com **Expo** para um desenvolvime
 ### 🌐 Conectividade & Dados
 * **Axios** `axios`: Cliente HTTP para comunicação com o backend Vapor API.
 * **Armazenamento Local**: `@react-native-async-storage/async-storage` e **`expo-secure-store`** para tokens de autenticação.
-
----
 
 ## 📦 Instalação e Execução
 
@@ -79,7 +89,6 @@ npm install
 ```bash
 npx expo start
 ```
----
 
 ## 👥 Equipe de Desenvolvimento
 
