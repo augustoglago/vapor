@@ -1,25 +1,30 @@
 // components/header.tsx
 import {
-    Toast,
-    ToastDescription,
-    ToastTitle,
-    useToast,
+  Toast,
+  ToastDescription,
+  ToastTitle,
+  useToast,
 } from "@/components/ui/toast";
 import { deleteToken } from "@/services/api";
+import { getMe } from "@/services/users";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
-import {
-    ActivityIndicator,
-    Image,
-    Modal,
-    Platform,
-    Pressable,
-    Text,
-    TouchableOpacity,
-    View,
-} from "react-native";
-// ⬇️ lucide icons
 import { LogOut, Menu, Pencil, Search, UserCircle2 } from "lucide-react-native";
+import React, { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Image,
+  Modal,
+  Platform,
+  Pressable,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+
+type MeResponse = {
+  nick_name: string;
+  avatar?: string;
+};
 
 export const Header = () => {
   const router = useRouter();
@@ -27,8 +32,21 @@ export const Header = () => {
 
   const [showProfileOptions, setShowProfileOptions] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [me, setMe] = useState<MeResponse | null>(null);
 
-  const closeModal = () => setShowProfileOptions(false);
+  /* ================= carregar /me ================= */
+
+  useEffect(() => {
+    getMe()
+      .then((user) => {
+        setMe(user);
+      })
+      .catch(() => {
+        setMe(null);
+      });
+  }, []);
+
+  /* ================= toast ================= */
 
   const showToast = (
     title: string,
@@ -47,44 +65,53 @@ export const Header = () => {
     });
   };
 
+  /* ================= logout ================= */
+
+  const closeModal = () => setShowProfileOptions(false);
+
   const handleLogout = async () => {
     if (isLoggingOut) return;
     setIsLoggingOut(true);
+
     try {
       await deleteToken();
       closeModal();
       showToast("Até logo!", "Você saiu da sua conta.", "success");
       router.replace("/login");
-    } catch (e) {
+    } catch {
       showToast("Erro ao sair", "Tente novamente em instantes.", "error");
     } finally {
       setIsLoggingOut(false);
     }
   };
 
+  /* ================= render ================= */
+
   return (
     <>
       <View className="flex-row bg-vapor-primary px-4 py-3 items-center justify-between border-b border-slate-700/20">
         {/* Avatar */}
         <Pressable
-          className="w-10 h-10 rounded-full overflow-hidden border-2 border-slate-600/30"
+          className="w-10 h-10 rounded-full overflow-hidden border-2 border-slate-600/30 bg-slate-700/40"
           onPress={() => setShowProfileOptions(true)}
-          accessibilityRole="button"
-          accessibilityLabel="Abrir opções do perfil"
         >
-          <Image
-            source={{ uri: "https://github.com/octocat.png" }}
-            className="w-full h-full"
-            resizeMode="cover"
-          />
+          {me?.avatar ? (
+            <Image
+              source={{ uri: me.avatar }}
+              className="w-full h-full"
+              resizeMode="cover"
+            />
+          ) : (
+            <View className="flex-1 items-center justify-center">
+              <UserCircle2 size={28} color="#cbd5e1" />
+            </View>
+          )}
         </Pressable>
 
-        {/* Chip -> vai para lista/pesquisa */}
+        {/* Buscar jogos */}
         <Pressable
           onPress={() => router.push("/gamelist")}
           className="mx-3 px-4 py-2 rounded-full bg-slate-700/40 border border-slate-600/40"
-          accessibilityRole="button"
-          accessibilityLabel="Ir para lista de jogos e pesquisar"
         >
           <View className="flex-row items-center">
             <Search size={16} color="#cbd5e1" />
@@ -94,17 +121,13 @@ export const Header = () => {
           </View>
         </Pressable>
 
-        {/* Menu hambúrguer (placeholder) */}
-        <Pressable
-          className="p-2"
-          accessibilityRole="button"
-          accessibilityLabel="Abrir menu"
-        >
+        {/* Menu */}
+        <Pressable className="p-2">
           <Menu size={24} color="#e2e8f0" />
         </Pressable>
       </View>
 
-      {/* Modal de opções do perfil */}
+      {/* Modal de perfil */}
       <Modal
         visible={showProfileOptions}
         transparent
@@ -121,33 +144,22 @@ export const Header = () => {
               Opções do Perfil
             </Text>
 
-            {/* Ver perfil */}
-            <Pressable
-              className="flex-row items-center p-3 rounded-lg bg-slate-700/30 mb-2"
-              onPress={closeModal}
-            >
+            <Pressable className="flex-row items-center p-3 rounded-lg bg-slate-700/30 mb-2">
               <UserCircle2 size={20} color="#e2e8f0" />
               <Text className="text-slate-100 ml-3 font-medium">
                 Ver perfil
               </Text>
             </Pressable>
 
-            {/* Editar perfil */}
-            <Pressable
-              className="flex-row items-center p-3 rounded-lg bg-slate-700/30 mb-2"
-              onPress={closeModal}
-            >
+            <Pressable className="flex-row items-center p-3 rounded-lg bg-slate-700/30 mb-2">
               <Pencil size={20} color="#e2e8f0" />
               <Text className="text-slate-100 ml-3 font-medium">
                 Editar perfil
               </Text>
             </Pressable>
 
-            {/* Sair (logout) */}
             <Pressable
-              className={`flex-row items-center p-3 rounded-lg ${
-                isLoggingOut ? "bg-red-700/40" : "bg-red-600/30"
-              } border border-red-500/30`}
+              className="flex-row items-center p-3 rounded-lg bg-red-600/30 border border-red-500/30"
               onPress={handleLogout}
               disabled={isLoggingOut}
             >
@@ -155,23 +167,13 @@ export const Header = () => {
               <Text className="text-red-200 ml-3 font-semibold">
                 {isLoggingOut ? "Saindo..." : "Sair"}
               </Text>
-              {isLoggingOut ? (
+              {isLoggingOut && (
                 <ActivityIndicator
                   className="ml-auto"
                   size="small"
                   color="#fecaca"
                 />
-              ) : null}
-            </Pressable>
-
-            {/* Cancelar */}
-            <Pressable
-              className="mt-4 p-3 rounded-lg bg-slate-600/50"
-              onPress={closeModal}
-            >
-              <Text className="text-slate-300 text-center font-medium">
-                Cancelar
-              </Text>
+              )}
             </Pressable>
           </View>
         </TouchableOpacity>

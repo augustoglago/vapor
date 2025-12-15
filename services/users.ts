@@ -10,7 +10,7 @@ export type RegisterPayload = {
   email: string;
   password: string;
   birth_date: string;
-  avatar_id?: number; 
+  avatar?: string;
 };
 
 export type RegisterResponse = {

@@ -18,11 +18,10 @@ import {
   Platform,
   Pressable,
   ScrollView,
-  View,
+  View
 } from "react-native";
 
 /* ================= tipos ================= */
-
 type Errors = Partial<
   Record<
     | "nickName"
@@ -37,7 +36,6 @@ type Errors = Partial<
 >;
 
 /* ================= helpers ================= */
-
 function toISODateZ(value: string): string | null {
   const clean = (value || "").trim();
   if (/^\d{2}\/\d{2}\/\d{4}$/.test(clean)) {
@@ -56,14 +54,12 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function Register() {
   const toast = useToast();
-
   const [nickName, setNickName] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [birthDate, setBirthDate] = useState("");
-
   const [avatars, setAvatars] = useState<Avatar[]>([]);
   const [selectedAvatarId, setSelectedAvatarId] = useState<number | null>(null);
 
@@ -99,7 +95,6 @@ export default function Register() {
   ]);
 
   /* ================= toast ================= */
-
   const showToast = (
     title: string,
     description: string,
@@ -118,7 +113,6 @@ export default function Register() {
   };
 
   /* ================= buscar avatares ================= */
-
   useEffect(() => {
     getAvatars()
       .then(setAvatars)
@@ -128,7 +122,6 @@ export default function Register() {
   }, []);
 
   /* ================= submit ================= */
-
   const handleSubmit = async () => {
     setTouched({
       nickName: true,
@@ -217,7 +210,8 @@ export default function Register() {
                   Escolha um avatar
                 </Text>
 
-                <View className="flex-row flex-wrap">
+                {/* Scroll de Avatares */}
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                   {avatars.map((avatar) => {
                     const selected = avatar.id === selectedAvatarId;
 
@@ -241,7 +235,7 @@ export default function Register() {
                       </Pressable>
                     );
                   })}
-                </View>
+                </ScrollView>
 
                 {errText(touched.avatar, errors.avatar)}
               </View>
