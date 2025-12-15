@@ -144,14 +144,28 @@ export const Header = () => {
               Opções do Perfil
             </Text>
 
-            <Pressable className="flex-row items-center p-3 rounded-lg bg-slate-700/30 mb-2">
+            {/* Ver perfil */}
+            <Pressable
+              className="flex-row items-center p-3 rounded-lg bg-slate-700/30 mb-2"
+              onPress={() => {
+                closeModal();
+                router.push("/(tabs)/profile");
+              }}
+            >
               <UserCircle2 size={20} color="#e2e8f0" />
               <Text className="text-slate-100 ml-3 font-medium">
                 Ver perfil
               </Text>
             </Pressable>
 
-            <Pressable className="flex-row items-center p-3 rounded-lg bg-slate-700/30 mb-2">
+            {/* Editar perfil */}
+            <Pressable
+              className="flex-row items-center p-3 rounded-lg bg-slate-700/30 mb-2"
+              onPress={() => {
+                closeModal();
+                router.push("/(tabs)/edit");
+              }}
+            >
               <Pencil size={20} color="#e2e8f0" />
               <Text className="text-slate-100 ml-3 font-medium">
                 Editar perfil

@@ -54,3 +54,26 @@ export async function getMe(): Promise<UserMe> {
   const { data } = await api.get<UserMeResponse>("/users/me");
   return data.data;
 }
+
+/* ---------- Update User ---------- */
+
+export type UpdateUserPayload = {
+  email?: string;
+  password?: string;
+  avatar_id?: number;
+};
+
+export type UpdateUserResponse = {
+  message: string;
+};
+
+export async function updateUser(
+  userId: number,
+  payload: UpdateUserPayload
+): Promise<UpdateUserResponse> {
+  const { data } = await api.put<UpdateUserResponse>(
+    `/users/${userId}`,
+    payload
+  );
+  return data;
+}
